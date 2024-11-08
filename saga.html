@@ -1,0 +1,1148 @@
+<html><head><base href="https://websimsystem.edu/" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Agendamento e Gestão de Aulas</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  h1 {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  h2 {
+    color: #2c3e50;
+  }
+  .calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .calendar-header {
+    font-weight: bold;
+    text-align: center;
+    background-color: #3498db;
+    color: white;
+    padding: 10px;
+  }
+  .calendar-day {
+    border: 1px solid #bdc3c7;
+    min-height: 100px;
+    padding: 10px;
+  }
+  .lesson {
+    background-color: #ecf0f1;
+    margin-bottom: 5px;
+    padding: 5px;
+    border-radius: 3px;
+    font-size: 0.8em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #333;
+    font-weight: bold;
+  }
+  form {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+  }
+  label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  input, select, textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  button {
+    background-color: #2ecc71;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #27ae60;
+  }
+  .content-organizer {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 5px;
+  }
+  .tab {
+    overflow: hidden;
+    border: 1px solid #8a2be2;
+    background-color: #f1f1f1;
+    display: flex;
+    margin-bottom: 20px;
+  }
+  .tab button {
+    background-color: #8a2be2;
+    color: white;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    flex: 1;
+    border-right: 1px solid white;
+  }
+  .tab button:last-child {
+    border-right: none;
+  }
+  .tab button:hover {
+    background-color: #ff8c00;
+  }
+  .tab button.active {
+    background-color: #6a1b9a;
+  }
+  .tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  th {
+    background-color: #f2f2f2;
+  }
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+  }
+  .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+  }
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .billing-filters {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 5px;
+  }
+  .billing-rates {
+    margin-bottom: 20px;
+  }
+  .rate-inputs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 5px;
+  }
+  .rate-inputs input {
+    width: 80px;
+    margin-left: 10px;
+  }
+  .billing-summary table {
+    margin-top: 20px;
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .receipt-generation {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f5f5f5;
+    border-radius: 5px;
+  }
+  #receipt-form {
+    max-width: 500px;
+  }
+  .customer-management {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 5px;
+  }
+  .customer-select {
+    margin-top: 15px;
+  }
+  .customer-list {
+    margin-top: 20px;
+    border-top: 1px solid #ddd;
+    padding-top: 20px;
+  }
+  .customer-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  .edit-btn {
+    background-color: #8a2be2;
+    padding: 5px 10px;
+    margin-left: 10px;
+  }
+  .edit-btn:hover {
+    background-color: #ff8c00;
+  }
+  .generated-receipts {
+    margin-top: 30px;
+  }
+  #receipts-table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+  }
+  #receipts-table th,
+  #receipts-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+  #receipts-table th {
+    background-color: #f5f5f5;
+  }
+  #receipt-value {
+    width: 150px;
+  }
+</style>
+</head>
+<body>
+  <h1>Sistema de Agendamento e Gestão de Aulas</h1>
+  
+  <div class="tab">
+    <button class="tablinks" onclick="openTab(event, 'Calendar')" id="defaultOpen">Calendário</button>
+    <button class="tablinks" onclick="openTab(event, 'ScheduledLessons')">Aulas Agendadas</button>
+    <button class="tablinks" onclick="openTab(event, 'LessonContents')">Conteúdo das Aulas</button>
+    <button class="tablinks" onclick="openTab(event, 'Billing')">Faturação</button>
+  </div>
+
+  <div id="Calendar" class="tabcontent">
+    <h2>Calendário</h2>
+    <div>
+      <label for="month-year-select">Selecionar Mês e Ano:</label>
+      <input type="month" id="month-year-select" onchange="updateCalendar()">
+    </div>
+    <div class="calendar" id="calendar-container"></div>
+
+    <h2>Agendar uma Aula</h2>
+    <form id="lesson-form">
+      <label for="date">Data:</label>
+      <input type="date" id="date" required>
+      
+      <label for="start-time">Hora de Início:</label>
+      <input type="time" id="start-time" min="09:00" max="21:00" required>
+      
+      <label for="end-time">Hora de Fim:</label>
+      <input type="time" id="end-time" min="09:00" max="21:00" required>
+      
+      <label for="subject">Disciplina(s):</label>
+      <select id="subject" multiple required>
+        <option value="Mathematics">Matemática</option>
+        <option value="Natural Sciences">Ciências Naturais</option>
+        <option value="Physics and Chemistry">Física e Química</option>
+        <option value="Biology and Geology">Biologia e Geologia</option>
+        <option value="English">Inglês</option>
+        <option value="Computer Modules">Módulos de Informática</option>
+      </select>
+      
+      <label for="lesson-customer">Cliente:</label>
+      <select id="lesson-customer" required>
+        <option value="">Selecionar um cliente...</option>
+      </select>
+      
+      <label for="lesson-type">Tipo de Aula:</label>
+      <select id="lesson-type" required>
+        <option value="">--</option>
+        <option value="study-center">Centro de Estudos</option>
+        <option value="tutoring">Explicações</option>
+        <option value="vocational-training">Formação Profissional</option>
+      </select>
+      
+      <label for="study-cycle">Ciclo de Estudos:</label>
+      <select id="study-cycle" required>
+        <option value="">--</option>
+        <option value="2nd-cycle">2º Ciclo (5º-6º ano)</option>
+        <option value="3rd-cycle">3º Ciclo (7º-9º ano)</option>
+        <option value="secondary">Secundário (10º-12º ano)</option>
+        <option value="m23">M23 (Maiores de 23)</option>
+      </select>
+      
+      <label for="school-year">Ano Letivo:</label>
+      <select id="school-year" required>
+        <option value="2022-2023">2022-2023</option>
+        <option value="2023-2024">2023-2024</option>
+        <option value="2024-2025">2024-2025</option>
+      </select>
+      
+      <label for="objectives">Objetivos:</label>
+      <select id="objectives" multiple required>
+        <option value="assignments">Apoio aos trabalhos</option>
+        <option value="academic-activities">Atividades académicas</option>
+        <option value="content-consolidation">Consolidação de conteúdos</option>
+        <option value="test-preparation">Preparação para testes</option>
+        <option value="exam-preparation">Preparação para exames</option>
+      </select>
+      
+      <label for="repeat">Repetir:</label>
+      <select id="repeat" onchange="toggleRepeatOptions()">
+        <option value="none">Não repetir</option>
+        <option value="weekly">Semanalmente</option>
+        <option value="monthly">Mensalmente</option>
+      </select>
+      
+      <div id="repeat-days" style="display: none;">
+        <label>Repetir em:</label>
+        <input type="checkbox" id="monday" name="repeat-day" value="1"><label for="monday">Segunda</label>
+        <input type="checkbox" id="tuesday" name="repeat-day" value="2"><label for="tuesday">Terça</label>
+        <input type="checkbox" id="wednesday" name="repeat-day" value="3"><label for="wednesday">Quarta</label>
+        <input type="checkbox" id="thursday" name="repeat-day" value="4"><label for="thursday">Quinta</label>
+        <input type="checkbox" id="friday" name="repeat-day" value="5"><label for="friday">Sexta</label>
+        <input type="checkbox" id="saturday" name="repeat-day" value="6"><label for="saturday">Sábado</label>
+      </div>
+      
+      <label for="repeat-until">Repetir Até:</label>
+      <input type="date" id="repeat-until">
+      
+      <button type="submit">Agendar Aula</button>
+    </form>
+  </div>
+
+  <div id="ScheduledLessons" class="tabcontent">
+    <h2>Aulas Agendadas</h2>
+    <table id="scheduled-lessons-table">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Horário</th>
+          <th>Disciplina(s)</th>
+          <th>Cliente</th>
+          <th>Tipo de Aula</th>
+          <th>Ciclo de Estudos</th>
+          <th>Ano Letivo</th>
+          <th>Objetivos</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div id="LessonContents" class="tabcontent">
+    <h2>Conteúdo das Aulas</h2>
+    <div class="content-organizer">
+      <h3>Selecionar uma Aula para Organizar Conteúdo</h3>
+      <select id="lesson-select"></select>
+      
+      <h3>Conteúdo da Aula</h3>
+      <textarea id="lesson-content" rows="10" placeholder="Insira o conteúdo da aula aqui..."></textarea>
+      <button id="save-content">Guardar Conteúdo</button>
+    </div>
+    <table id="lesson-contents-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Data</th>
+          <th>Período de Tempo</th>
+          <th>Conteúdo</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div id="Billing" class="tabcontent">
+    <h2>Faturação</h2>
+    
+    <div class="customer-management">
+      <h3>Gestão de Clientes</h3>
+      <form id="customer-form">
+        <label for="new-customer-name">Nome:</label>
+        <input type="text" id="new-customer-name" required>
+        
+        <label for="new-customer-nif">NIF:</label>
+        <input type="text" id="new-customer-nif" required pattern="\d{9}">
+        
+        <label for="new-customer-address">Morada:</label>
+        <textarea id="new-customer-address" required></textarea>
+        
+        <button type="submit">Adicionar Cliente</button>
+      </form>
+
+      <div class="customer-select">
+        <label for="billing-customer">Selecionar Cliente:</label>
+        <select id="billing-customer">
+          <option value="">Selecionar um cliente...</option>
+        </select>
+      </div>
+
+      <div id="customer-list" class="customer-list"></div>
+    </div>
+
+    <div class="billing-filters">
+      <label for="billing-month">Mês:</label>
+      <input type="month" id="billing-month">
+      <button onclick="calculateBilling()">Calcular</button>
+    </div>
+
+    <div class="billing-rates">
+      <h3>Taxas por Tipo de Serviço</h3>
+      <div class="rate-inputs">
+        <div>
+          <label>Centro de Estudos:</label>
+          <input type="number" id="rate-study-center" value="15" min="0" step="0.01">€/hora
+        </div>
+        <div>
+          <label>Explicações:</label>
+          <input type="number" id="rate-tutoring" value="20" min="0" step="0.01">€/hora
+        </div>
+        <div>
+          <label>Formação Profissional:</label>
+          <input type="number" id="rate-vocational" value="25" min="0" step="0.01">€/hora
+        </div>
+      </div>
+    </div>
+
+    <div class="billing-summary">
+      <h3>Resumo de Faturação</h3>
+      <table id="billing-table">
+        <thead>
+          <tr>
+            <th>Tipo de Serviço</th>
+            <th>Total de Horas</th>
+            <th>Valor por Hora</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3"><strong>Total Final</strong></td>
+            <td id="grand-total">0.00 €</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="receipt-generation">
+      <h3>Gerar Recibo</h3>
+      <form id="receipt-form">
+        <label for="receipt-customer-select">Cliente:</label>
+        <select id="receipt-customer-select" required>
+          <option value="">Selecionar um cliente...</option>
+        </select>
+        
+        <label for="client-name">Nome do Cliente:</label>
+        <input type="text" id="client-name" readonly>
+        
+        <label for="client-nif">NIF:</label>
+        <input type="text" id="client-nif" readonly pattern="\d{9}">
+        
+        <label for="client-address">Morada:</label>
+        <textarea id="client-address" readonly></textarea>
+        
+        <label for="receipt-value">Valor:</label>
+        <input type="number" id="receipt-value" step="0.01" required>
+        
+        <button type="submit">Gerar Recibo</button>
+      </form>
+
+      <div class="generated-receipts">
+        <h3>Recibos Gerados</h3>
+        <table id="receipts-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Cliente</th>
+              <th>NIF</th>
+              <th>Valor</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="editLessonModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Editar Aula</h2>
+      <form id="edit-lesson-form">
+        <label for="edit-date">Data:</label>
+        <input type="date" id="edit-date" required>
+        
+        <label for="edit-start-time">Hora de Início:</label>
+        <input type="time" id="edit-start-time" min="09:00" max="21:00" required>
+        
+        <label for="edit-end-time">Hora de Fim:</label>
+        <input type="time" id="edit-end-time" min="09:00" max="21:00" required>
+        
+        <label for="edit-subject">Disciplina(s):</label>
+        <select id="edit-subject" multiple required>
+          <option value="Mathematics">Matemática</option>
+          <option value="Natural Sciences">Ciências Naturais</option>
+          <option value="Physics and Chemistry">Física e Química</option>
+          <option value="Biology and Geology">Biologia e Geologia</option>
+          <option value="English">Inglês</option>
+          <option value="Computer Modules">Módulos de Informática</option>
+        </select>
+        
+        <label for="edit-lesson-customer">Cliente:</label>
+        <select id="edit-lesson-customer" required>
+          <option value="">Selecionar um cliente...</option>
+        </select>
+        
+        <label for="edit-lesson-type">Tipo de Aula:</label>
+        <select id="edit-lesson-type" required>
+          <option value="">--</option>
+          <option value="study-center">Centro de Estudos</option>
+          <option value="tutoring">Explicações</option>
+          <option value="vocational-training">Formação Profissional</option>
+        </select>
+        
+        <label for="edit-study-cycle">Ciclo de Estudos:</label>
+        <select id="edit-study-cycle" required>
+          <option value="">--</option>
+          <option value="2nd-cycle">2º Ciclo (5º-6º ano)</option>
+          <option value="3rd-cycle">3º Ciclo (7º-9º ano)</option>
+          <option value="secondary">Secundário (10º-12º ano)</option>
+          <option value="m23">M23 (Maiores de 23)</option>
+        </select>
+        
+        <label for="edit-school-year">Ano Letivo:</label>
+        <select id="edit-school-year" required>
+          <option value="2022-2023">2022-2023</option>
+          <option value="2023-2024">2023-2024</option>
+          <option value="2024-2025">2024-2025</option>
+        </select>
+        
+        <label for="edit-objectives">Objetivos:</label>
+        <select id="edit-objectives" multiple required>
+          <option value="assignments">Apoio aos trabalhos</option>
+          <option value="academic-activities">Atividades académicas</option>
+          <option value="content-consolidation">Consolidação de conteúdos</option>
+          <option value="test-preparation">Preparação para testes</option>
+          <option value="exam-preparation">Preparação para exames</option>
+        </select>
+        
+        <label for="edit-repeat">Repetir:</label>
+        <select id="edit-repeat" onchange="toggleRepeatOptions()">
+          <option value="none">Não repetir</option>
+          <option value="weekly">Semanalmente</option>
+          <option value="monthly">Mensalmente</option>
+        </select>
+        
+        <div id="edit-repeat-days" style="display: none;">
+          <label>Repetir em:</label>
+          <input type="checkbox" id="edit-monday" name="edit-repeat-day" value="1"><label for="edit-monday">Segunda</label>
+          <input type="checkbox" id="edit-tuesday" name="edit-repeat-day" value="2"><label for="edit-tuesday">Terça</label>
+          <input type="checkbox" id="edit-wednesday" name="edit-repeat-day" value="3"><label for="edit-wednesday">Quarta</label>
+          <input type="checkbox" id="edit-thursday" name="edit-repeat-day" value="4"><label for="edit-thursday">Quinta</label>
+          <input type="checkbox" id="edit-friday" name="edit-repeat-day" value="5"><label for="edit-friday">Sexta</label>
+          <input type="checkbox" id="edit-saturday" name="edit-repeat-day" value="6"><label for="edit-saturday">Sábado</label>
+        </div>
+        
+        <label for="edit-repeat-until">Repetir Até:</label>
+        <input type="date" id="edit-repeat-until">
+        
+        <button type="submit">Guardar Alterações</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="editCustomerModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeCustomerModal()">&times;</span>
+      <h2>Editar Cliente</h2>
+      <form id="edit-customer-form">
+        <input type="hidden" id="edit-customer-id">
+        <label for="edit-customer-name">Nome:</label>
+        <input type="text" id="edit-customer-name" required>
+        
+        <label for="edit-customer-nif">NIF:</label>
+        <input type="text" id="edit-customer-nif" required pattern="\d{9}">
+        
+        <label for="edit-customer-address">Morada:</label>
+        <textarea id="edit-customer-address" required></textarea>
+        
+        <button type="submit">Salvar Alterações</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+  <script>
+    let lessons = [];
+    let lessonContents = {};
+    let customers = [];
+    let customerLessons = {};
+    let currentDate = moment();
+    let generatedReceipts = [];
+
+    const calendarContainer = document.getElementById('calendar-container');
+    const lessonForm = document.getElementById('lesson-form');
+    const lessonSelect = document.getElementById('lesson-select');
+    const lessonContentEl = document.getElementById('lesson-content');
+    const saveContentBtn = document.getElementById('save-content');
+    const scheduledLessonsTable = document.getElementById('scheduled-lessons-table').getElementsByTagName('tbody')[0];
+    const lessonContentsTable = document.getElementById('lesson-contents-table').getElementsByTagName('tbody')[0];
+    const editLessonModal = document.getElementById('editLessonModal');
+    const editLessonForm = document.getElementById('edit-lesson-form');
+
+    function openTab(evt, tabName) {
+      const tabcontent = document.getElementsByClassName("tabcontent");
+      for (let i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+      }
+
+      const tablinks = document.getElementsByClassName("tablinks");
+      for (let i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+      }
+
+      document.getElementById(tabName).style.display = "block";
+      evt.currentTarget.className += " active";
+    }
+
+    function updateCalendar() {
+      const monthYear = document.getElementById('month-year-select').value;
+      currentDate = moment(monthYear, 'YYYY-MM');
+      populateCalendar();
+    }
+
+    function populateCalendar() {
+      calendarContainer.innerHTML = '';
+      const daysOfWeek = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+      daysOfWeek.forEach(day => {
+        const headerEl = document.createElement('div');
+        headerEl.className = 'calendar-header';
+        headerEl.textContent = day;
+        calendarContainer.appendChild(headerEl);
+      });
+
+      const firstDay = currentDate.clone().startOf('month').startOf('isoWeek');
+      const lastDay = currentDate.clone().endOf('month').endOf('isoWeek');
+
+      for (let day = firstDay.clone(); day.isSameOrBefore(lastDay); day.add(1, 'day')) {
+        const dayEl = document.createElement('div');
+        dayEl.className = 'calendar-day';
+        dayEl.textContent = day.format('D');
+        
+        if (day.month() !== currentDate.month()) {
+          dayEl.style.opacity = '0.5';
+        }
+
+        const dayLessons = lessons.filter(lesson => {
+          const lessonDate = moment(lesson.date);
+          return lessonDate.isSame(day, 'day');
+        });
+
+        if (dayLessons.length > 0) {
+          dayLessons.forEach(lesson => {
+            const lessonEl = document.createElement('div');
+            lessonEl.className = 'lesson';
+            const typeMap = {
+              'study-center': 'CE',
+              'tutoring': 'EXP',
+              'vocational-training': 'FP'
+            };
+            const shortType = typeMap[lesson.type] || lesson.type;
+            lessonEl.textContent = `${lesson.startTime}-${lesson.endTime}: ${shortType}`;
+            dayEl.appendChild(lessonEl);
+          });
+        }
+
+        calendarContainer.appendChild(dayEl);
+      }
+    }
+    
+    function updateScheduledLessonsTable() {
+      const tbody = document.getElementById('scheduled-lessons-table').getElementsByTagName('tbody')[0];
+      tbody.innerHTML = '';
+      
+      lessons.forEach(lesson => {
+        const row = tbody.insertRow();
+        const customer = customers.find(c => c.id === lesson.customerId);
+        const customerName = customer ? customer.name : 'N/A';
+        
+        row.insertCell().textContent = lesson.date;
+        row.insertCell().textContent = `${lesson.startTime}-${lesson.endTime}`;
+        row.insertCell().textContent = lesson.subject.join(', ');
+        row.insertCell().textContent = customerName;
+        row.insertCell().textContent = getServiceTypeName(lesson.type);
+        row.insertCell().textContent = lesson.cycle;
+        row.insertCell().textContent = lesson.schoolYear;
+        row.insertCell().textContent = lesson.objectives.join(', ');
+
+        const actionsCell = row.insertCell();
+        const editBtn = document.createElement('button');
+        editBtn.textContent = 'Editar';
+        editBtn.onclick = () => editLesson(lesson.id);
+        actionsCell.appendChild(editBtn);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Eliminar';
+        deleteBtn.onclick = () => deleteLesson(lesson.id);
+        actionsCell.appendChild(deleteBtn);
+      });
+    }
+
+    function editLesson(lessonId) {
+      const lesson = lessons.find(l => l.id === lessonId);
+      if (lesson) {
+        document.getElementById('edit-date').value = lesson.date;
+        document.getElementById('edit-start-time').value = lesson.startTime;
+        document.getElementById('edit-end-time').value = lesson.endTime;
+        document.getElementById('edit-subject').value = lesson.subject;
+        document.getElementById('edit-lesson-customer').value = lesson.customerId;
+        document.getElementById('edit-lesson-type').value = lesson.type;
+        document.getElementById('edit-study-cycle').value = lesson.cycle;
+        document.getElementById('edit-school-year').value = lesson.schoolYear;
+        document.getElementById('edit-objectives').value = lesson.objectives;
+        
+        editLessonModal.style.display = 'block';
+      }
+    }
+
+    function deleteLesson(lessonId) {
+      if (confirm('Tem certeza que deseja eliminar esta aula?')) {
+        const index = lessons.findIndex(l => l.id === lessonId);
+        if (index !== -1) {
+          lessons.splice(index, 1);
+          updateScheduledLessonsTable();
+          populateCalendar();
+          updateLessonSelect();
+        }
+      }
+    }
+
+    lessonForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const customerId = document.getElementById('lesson-customer').value;
+      if (!customerId) {
+        alert('Por favor selecione um cliente.');
+        return;
+      }
+
+      const baseLesson = {
+        date: document.getElementById('date').value,
+        startTime: document.getElementById('start-time').value,
+        endTime: document.getElementById('end-time').value,
+        subject: Array.from(document.getElementById('subject').selectedOptions).map(option => option.value),
+        customerId: parseInt(customerId),
+        type: document.getElementById('lesson-type').value,
+        cycle: document.getElementById('study-cycle').value,
+        schoolYear: document.getElementById('school-year').value,
+        objectives: Array.from(document.getElementById('objectives').selectedOptions).map(option => option.value),
+        repeat: document.getElementById('repeat').value,
+        repeatUntil: document.getElementById('repeat-until').value,
+        repeatDays: Array.from(document.getElementsByName('repeat-day'))
+          .filter(checkbox => checkbox.checked)
+          .map(checkbox => parseInt(checkbox.value))
+      };
+
+      const startDate = moment(baseLesson.date);
+      const endDate = baseLesson.repeatUntil ? moment(baseLesson.repeatUntil) : startDate.clone();
+      const newLessons = [];
+
+      let currentDate = startDate.clone();
+      while (currentDate.isSameOrBefore(endDate)) {
+        const currentDay = currentDate.day() || 7;
+
+        if (baseLesson.repeat === 'none') {
+          if (currentDate.isSame(startDate, 'day')) {
+            newLessons.push({
+              ...baseLesson,
+              id: lessons.length + newLessons.length + 1,
+              date: currentDate.format('YYYY-MM-DD')
+            });
+          }
+        } else if (baseLesson.repeat === 'weekly' && 
+                  (baseLesson.repeatDays.includes(currentDay) || currentDate.isSame(startDate, 'day'))) {
+          newLessons.push({
+            ...baseLesson,
+            id: lessons.length + newLessons.length + 1,
+            date: currentDate.format('YYYY-MM-DD')
+          });
+        } else if (baseLesson.repeat === 'monthly' && currentDate.date() === startDate.date()) {
+          newLessons.push({
+            ...baseLesson,
+            id: lessons.length + newLessons.length + 1,
+            date: currentDate.format('YYYY-MM-DD')
+          });
+        }
+
+        currentDate.add(1, 'day');
+      }
+
+      lessons.push(...newLessons);
+      populateCalendar();
+      updateLessonSelect();
+      updateScheduledLessonsTable();
+      this.reset();
+    });
+
+    document.getElementById('customer-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const customer = {
+        id: Date.now(),
+        name: document.getElementById('new-customer-name').value,
+        nif: document.getElementById('new-customer-nif').value,
+        address: document.getElementById('new-customer-address').value
+      };
+      
+      customers.push(customer);
+      updateCustomerSelect();
+      this.reset();
+    });
+
+    function updateCustomerSelect() {
+      const billingSelect = document.getElementById('billing-customer');
+      const lessonCustomerSelect = document.getElementById('lesson-customer');
+      const receiptCustomerSelect = document.getElementById('receipt-customer-select');
+      
+      const selectOptions = '<option value="">Selecionar um cliente...</option>' + 
+        customers.map(customer => 
+          `<option value="${customer.id}">${customer.name} (NIF: ${customer.nif})</option>`
+        ).join('');
+      
+      billingSelect.innerHTML = selectOptions;
+      lessonCustomerSelect.innerHTML = selectOptions;
+      receiptCustomerSelect.innerHTML = selectOptions;
+
+      const customerList = document.getElementById('customer-list');
+      customerList.innerHTML = '';
+      
+      customers.forEach(customer => {
+        const customerDiv = document.createElement('div');
+        customerDiv.className = 'customer-item';
+        customerDiv.innerHTML = `
+          <div>
+            <strong>${customer.name}</strong> (NIF: ${customer.nif})
+            <br>
+            ${customer.address}
+          </div>
+          <button onclick="editCustomer(${customer.id})" class="edit-btn">Editar</button>
+        `;
+        customerList.appendChild(customerDiv);
+      });
+    }
+
+    function handleReceiptCustomerSelect() {
+      const customerSelect = document.getElementById('receipt-customer-select');
+      customerSelect.addEventListener('change', function() {
+        const selectedCustomer = customers.find(c => c.id === parseInt(this.value));
+        if (selectedCustomer) {
+          document.getElementById('client-name').value = selectedCustomer.name;
+          document.getElementById('client-nif').value = selectedCustomer.nif;
+          document.getElementById('client-address').value = selectedCustomer.address;
+        } else {
+          document.getElementById('client-name').value = '';
+          document.getElementById('client-nif').value = '';
+          document.getElementById('client-address').value = '';
+        }
+      });
+    }
+
+    function editCustomer(customerId) {
+      const customer = customers.find(c => c.id === customerId);
+      if (customer) {
+        document.getElementById('edit-customer-id').value = customer.id;
+        document.getElementById('edit-customer-name').value = customer.name;
+        document.getElementById('edit-customer-nif').value = customer.nif;
+        document.getElementById('edit-customer-address').value = customer.address;
+        document.getElementById('editCustomerModal').style.display = 'block';
+      }
+    }
+
+    function closeCustomerModal() {
+      document.getElementById('editCustomerModal').style.display = 'none';
+    }
+
+    document.getElementById('edit-customer-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const customerId = parseInt(document.getElementById('edit-customer-id').value);
+      const customerIndex = customers.findIndex(c => c.id === customerId);
+      
+      if (customerIndex !== -1) {
+        customers[customerIndex] = {
+          id: customerId,
+          name: document.getElementById('edit-customer-name').value,
+          nif: document.getElementById('edit-customer-nif').value,
+          address: document.getElementById('edit-customer-address').value
+        };
+        
+        updateCustomerSelect();
+        closeCustomerModal();
+      }
+    });
+
+    function updateLessonSelect() {
+      lessonSelect.innerHTML = '<option value="">Selecionar uma aula...</option>';
+      lessons.forEach(lesson => {
+        const option = document.createElement('option');
+        option.value = lesson.id;
+        const customer = customers.find(c => c.id === lesson.customerId);
+        const customerName = customer ? customer.name : 'N/A';
+        option.textContent = `${lesson.date} ${lesson.startTime}-${lesson.endTime} (${customerName})`;
+        lessonSelect.appendChild(option);
+      });
+    }
+
+    function calculateBilling() {
+      const selectedMonth = document.getElementById('billing-month').value;
+      const selectedCustomerId = parseInt(document.getElementById('billing-customer').value);
+      
+      if (!selectedCustomerId) {
+        alert('Por favor selecione um cliente.');
+        return;
+      }
+      
+      const selectedCustomer = customers.find(c => c.id === selectedCustomerId);
+      if (selectedCustomer) {
+        document.getElementById('client-name').value = selectedCustomer.name;
+        document.getElementById('client-nif').value = selectedCustomer.nif;
+        document.getElementById('client-address').value = selectedCustomer.address;
+      }
+      
+      const customerLessons = lessons.filter(lesson => {
+        return lesson.date.startsWith(selectedMonth) && 
+               lesson.customerId === selectedCustomerId;
+      });
+      
+      const rates = {
+        'study-center': parseFloat(document.getElementById('rate-study-center').value),
+        'tutoring': parseFloat(document.getElementById('rate-tutoring').value),
+        'vocational-training': parseFloat(document.getElementById('rate-vocational').value)
+      };
+      
+      const billing = {
+        'study-center': { hours: 0, total: 0 },
+        'tutoring': { hours: 0, total: 0 },
+        'vocational-training': { hours: 0, total: 0 }
+      };
+      
+      customerLessons.forEach(lesson => {
+        const start = moment(lesson.startTime, 'HH:mm');
+        const end = moment(lesson.endTime, 'HH:mm');
+        const hours = end.diff(start, 'hours', true);
+        
+        if (billing[lesson.type]) {
+          billing[lesson.type].hours += hours;
+          billing[lesson.type].total += hours * rates[lesson.type];
+        }
+      });
+      
+      updateBillingTable(billing, rates);
+    }
+
+    function updateLessonContentsTable() {
+      lessonContentsTable.innerHTML = '';
+      Object.entries(lessonContents).forEach(([lessonId, content]) => {
+        const lesson = lessons.find(l => l.id === parseInt(lessonId));
+        if (lesson) {
+          const customer = customers.find(c => c.id === lesson.customerId);
+          const row = lessonContentsTable.insertRow();
+          row.insertCell().textContent = lessonId;
+          row.insertCell().textContent = lesson.date;
+          row.insertCell().textContent = `${lesson.startTime}-${lesson.endTime}`;
+          row.insertCell().textContent = content;
+          const actionsCell = row.insertCell();
+          const editBtn = document.createElement('button');
+          editBtn.textContent = 'Editar';
+          editBtn.onclick = () => {
+            lessonSelect.value = lessonId;
+            lessonContentEl.value = content;
+          };
+          actionsCell.appendChild(editBtn);
+        }
+      });
+    }
+
+    saveContentBtn.addEventListener('click', function() {
+      const selectedLessonId = lessonSelect.value;
+      const content = lessonContentEl.value;
+      
+      if (selectedLessonId && content) {
+        lessonContents[selectedLessonId] = content;
+        updateLessonContentsTable();
+        lessonContentEl.value = '';
+        lessonSelect.value = '';
+      } else {
+        alert('Por favor selecione uma aula e insira o conteúdo');
+      }
+    });
+
+    function updateBillingTable(billing, rates) {
+      const tbody = document.querySelector('#billing-table tbody');
+      tbody.innerHTML = '';
+      let grandTotal = 0;
+      
+      Object.entries(billing).forEach(([type, data]) => {
+        if (data.hours > 0) {
+          const row = tbody.insertRow();
+          row.insertCell().textContent = getServiceTypeName(type);
+          row.insertCell().textContent = data.hours.toFixed(2);
+          row.insertCell().textContent = rates[type].toFixed(2) + ' €';
+          row.insertCell().textContent = data.total.toFixed(2) + ' €';
+          grandTotal += data.total;
+        }
+      });
+      
+      document.getElementById('grand-total').textContent = grandTotal.toFixed(2) + ' €';
+    }
+
+    function getServiceTypeName(type) {
+      const types = {
+        'study-center': 'Centro de Estudos',
+        'tutoring': 'Explicações',
+        'vocational-training': 'Formação Profissional'
+      };
+      return types[type];
+    }
+
+    document.getElementById('receipt-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      generateReceipt();
+    });
+
+    function generateReceipt() {
+      const clientName = document.getElementById('client-name').value;
+      const clientNIF = document.getElementById('client-nif').value;
+      const clientAddress = document.getElementById('client-address').value;
+      const receiptValue = parseFloat(document.getElementById('receipt-value').value);
+      const receiptDate = new Date().toISOString().split('T')[0];
+      
+      const receipt = {
+        id: Date.now(),
+        date: receiptDate,
+        clientName,
+        clientNIF,
+        clientAddress,
+        value: receiptValue
+      };
+      
+      generatedReceipts.push(receipt);
+      updateReceiptsTable();
+      
+      document.getElementById('receipt-form').reset();
+      document.getElementById('client-name').value = '';
+      document.getElementById('client-nif').value = '';
+      document.getElementById('client-address').value = '';
+    }
+
+    function updateReceiptsTable() {
+      const tbody = document.querySelector('#receipts-table tbody');
+      tbody.innerHTML = '';
+      
+      generatedReceipts.forEach(receipt => {
+        const row = tbody.insertRow();
+        row.insertCell().textContent = receipt.date;
+        row.insertCell().textContent = receipt.clientName;
+        row.insertCell().textContent = receipt.clientNIF;
+        row.insertCell().textContent = receipt.value.toFixed(2) + ' €';
+        
+        const actionsCell = row.insertCell();
+        const exportBtn = document.createElement('button');
+        exportBtn.textContent = 'Exportar';
+        exportBtn.onclick = () => exportReceipt(receipt);
+        actionsCell.appendChild(exportBtn);
+      });
+    }
+
+    function exportReceipt(receipt) {
+      const receiptContent = `
+Recibo
+Data: ${receipt.date}
+Cliente: ${receipt.clientName}
+NIF: ${receipt.clientNIF}
+Morada: ${receipt.clientAddress}
+Valor: ${receipt.value.toFixed(2)} €
+`;
+      
+      const blob = new Blob([receiptContent], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `recibo_${receipt.date}_${receipt.clientName}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }
+
+    document.getElementById("defaultOpen").click();
+    document.getElementById('month-year-select').value = moment().format('YYYY-MM');
+    populateCalendar();
+    toggleRepeatOptions();
+    handleReceiptCustomerSelect();
+
+    function toggleRepeatOptions() {
+      const repeatSelect = document.getElementById('repeat');
+      const repeatDays = document.getElementById('repeat-days');
+      const repeatUntil = document.getElementById('repeat-until');
+      
+      if (repeatSelect.value === 'none') {
+        repeatDays.style.display = 'none';
+        repeatUntil.style.display = 'none';
+      } else {
+        repeatDays.style.display = 'block';
+        repeatUntil.style.display = 'block';
+      }
+
+      const editRepeatSelect = document.getElementById('edit-repeat');
+      const editRepeatDays = document.getElementById('edit-repeat-days');
+      const editRepeatUntil = document.getElementById('edit-repeat-until');
+      
+      if (editRepeatSelect && editRepeatDays && editRepeatUntil) {
+        if (editRepeatSelect.value === 'none') {
+          editRepeatDays.style.display = 'none';
+          editRepeatUntil.style.display = 'none';
+        } else {
+          editRepeatDays.style.display = 'block';
+          editRepeatUntil.style.display = 'block';
+        }
+      }
+    }
+  </script>
+</body>
+</html>
